@@ -1,0 +1,14 @@
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+
+# Πρωτότυπο αρχείο ήχου με κενά στο όνομα — χρησιμοποιούμε το assets/reel.wav
+assets/EQUIPRec_Fishing Reel Line Pull Fishing_GENHD1-11213.wav
+
+# Claude Code local settings
+.claude/
