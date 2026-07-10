@@ -81,9 +81,9 @@ class GameScene extends Phaser.Scene {
 
     this.time.addEvent({ delay: 900, loop: true, callback: () => this.spawnBubble() });
 
-    // ήχος: ambient υποβρύχιο (μόνο στο παιχνίδι) + μουσική (συνεχής)
-    AUDIO.startMusic(this);
-    AUDIO.startAmbient(this);
+    // ήχος: μουσική παιχνιδιού (island loop) + ambient υποβρύχιο, μόνο στο παιχνίδι
+    AUDIO.playMusic(this, 'music_game', 0.5);
+    AUDIO.startAmbient();
     this.events.once('shutdown', () => AUDIO.stopAmbient());
 
     UI.muteButton(this, this.W - 36, 84);
@@ -100,19 +100,28 @@ class GameScene extends Phaser.Scene {
     sky.fillGradientStyle(0x86cdee, 0x86cdee, 0xFCEBCB, 0xFCEBCB, 1);
     sky.fillRect(0, 0, W, hy);
 
-    // ήλιος με λάμψη
-    const sunX = W * 0.14, sunY = hy * 0.34;
+    // ήλιος με λάμψη (δεξιά, αφού το νησί πάει αριστερά)
+    const sunX = W * 0.86, sunY = hy * 0.32;
     const glow = this.add.graphics().setDepth(0);
     glow.fillStyle(0xFFF3D0, 0.18); glow.fillCircle(sunX, sunY, 46);
     glow.fillStyle(0xFFF0C4, 0.30); glow.fillCircle(sunX, sunY, 32);
     this.add.circle(sunX, sunY, 20, 0xFFE39A).setDepth(0);
 
-    // ── ΝΗΣΙ ΣΑΝΤΟΡΙΝΗ + ΙΣΤΙΟΦΟΡΟ ──
-    this.buildIsland();
+    // ── ΝΗΣΙ (αριστερά, πάνω στη γραμμή του νερού) ──
+    this.add.image(10, hy + 30, 'island_img')
+      .setOrigin(0, 1).setDisplaySize(340, 340 * (315 / 780)).setDepth(0);
+
+    // ιστιοφόρο που διασχίζει τον ορίζοντα
     this.buildSailboat();
 
     // ── ΘΑΛΑΣΣΑ (animated fill στο update) ──
     this.seaGfx = this.add.graphics().setDepth(0);
+
+    // ── PINK FLAMINGO float (επιπλέει αριστερά στην επιφάνεια) ──
+    const flam = this.add.image(W * 0.09, hy + 10, 'flamingo')
+      .setOrigin(0.5, 0.72).setDepth(4);
+    flam.setDisplaySize(150, 150 * (296 / 320));
+    this.tweens.add({ targets: flam, y: flam.y - 9, angle: 4, duration: 2200, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
 
     // ακτίνες φωτός κάτω από την επιφάνεια
     this.rays = [];
@@ -130,9 +139,9 @@ class GameScene extends Phaser.Scene {
     const deep = this.add.graphics().setDepth(1);
     deep.fillGradientStyle(0x0a4f8f, 0x0a4f8f, 0x03203c, 0x03203c, 1);
     deep.fillRect(0, H * 0.58, W, H * 0.42);
-    deep.setAlpha(0.55);
+    deep.setAlpha(0.5);
 
-    // αιωρούμενα σωματίδια (plankton) — ambient «ζωντάνια»
+    // αιωρούμενα σωματίδια (plankton)
     this.add.particles(0, 0, 'bubble', {
       x: { min: 0, max: W }, y: { min: hy, max: H },
       scale: { min: 0.05, max: 0.16 }, alpha: { start: 0.22, end: 0 },
@@ -140,28 +149,9 @@ class GameScene extends Phaser.Scene {
       frequency: 350, quantity: 1, blendMode: 'ADD'
     }).setDepth(2);
 
-    // ── ΒΥΘΟΣ: gradient άμμος με ανώμαλη κορυφή ──
-    const sand = this.add.graphics().setDepth(2);
-    sand.fillGradientStyle(0xD9BE8A, 0xD9BE8A, 0xBE9E68, 0xBE9E68, 1);
-    sand.beginPath();
-    sand.moveTo(0, H * 0.94);
-    for (let x = 0; x <= W; x += 40) sand.lineTo(x, H * 0.94 - 4 + Math.sin(x * 0.05) * 4);
-    sand.lineTo(W, H); sand.lineTo(0, H); sand.closePath(); sand.fillPath();
-
-    // διακοσμητικά βυθού (+ βυθισμένη μπότα & αμφορέας)
-    const decor = [
-      ['coral',    0.07, -12, 1.1,   0],
-      ['shell',    0.17,   8, 0.9,   0],
-      ['amphora',  0.30,  -4, 1.0,  -8],
-      ['starfish', 0.44,  12, 0.85,  0],
-      ['boot',     0.60,  10, 1.05, -16],   // μισοχωμένη στην άμμο
-      ['shell',    0.73,   8, 0.8,   0],
-      ['coral',    0.86, -12, 1.15,  0],
-      ['starfish', 0.95,  10, 0.7,  22]
-    ];
-    decor.forEach(([key, px, dy, sc, ang]) => {
-      this.add.image(W * px, this.seabedY + dy, key).setScale(sc).setAngle(ang).setDepth(2);
-    });
+    // ── ΒΥΘΟΣ (illustrated PNG, full width, bottom-aligned, πίσω από τον παίκτη) ──
+    this.add.image(W / 2, H + 4, 'seabed_img')
+      .setOrigin(0.5, 1).setDisplaySize(W, W * (436 / 1376)).setDepth(2);
   }
 
   /* ── Νησί τύπου Σαντορίνη: καλντέρα, λευκά σπίτια, μπλε τρούλοι, ανεμόμυλος ── */
@@ -265,15 +255,30 @@ class GameScene extends Phaser.Scene {
 
   /* ================= PLAYER ================= */
   buildPlayer() {
+    this.smallScale = 0.36;          // 'lago' = 440x245  → ~158px πλάτος
+    this.bigScale = 0.44;            // 'lago_big' μετά από combo
+    this.pScale = this.smallScale;
+    this.squishX = 1; this.squishY = 1;
+
     this.player = this.physics.add.image(this.W / 2, this.restY, 'lago');
-    this.player.setScale(1.1).setDepth(5);
-    this.player.body.setSize(80, 55).setOffset(20, 18);
+    this.player.setDepth(5).setScale(this.pScale);
+    // hitbox: πυρήνας σώματος (source px του 'lago' 440x245) — tune live αν χρειαστεί
+    this.player.body.setSize(300, 150).setOffset(70, 55);
     this.player.setCollideWorldBounds(true);
-    this.player.body.setGravityY(TUNE.gravity);
+    this.player.body.setGravityY(0);
     this.canJump = true;
-    this.tweens.add({
-      targets: this.player, scaleY: 1.16, duration: 800,
-      yoyo: true, repeat: -1, ease: 'Sine.inOut'
+  }
+
+  /* Μετά από combo: ο λαγοκέφαλος «φουσκώνει» (lago_big) για λίγο */
+  puff() {
+    if (this._puffEvent) this._puffEvent.remove();
+    this.player.setTexture('lago_big');
+    this.pScale = this.bigScale;
+    this.squishX = 1.3; this.squishY = 1.12;
+    this._puffEvent = this.time.delayedCall(1300, () => {
+      this.player.setTexture('lago');
+      this.pScale = this.smallScale;
+      this._puffEvent = null;
     });
   }
 
@@ -413,7 +418,7 @@ class GameScene extends Phaser.Scene {
 
     this.splashAt(x, this.waterY);
     hook.overlap = this.physics.add.overlap(this.player, hook, () => {
-      if (!this.gameEnded) this.onHit();
+      if (!this.gameEnded) this.onHit('hook');
     }, null, this);
 
     this.hooks.push(hook);
@@ -526,7 +531,7 @@ class GameScene extends Phaser.Scene {
       targets: this.turtle, y: this.restY - 12, angle: -3, duration: 650,
       yoyo: true, repeat: -1, ease: 'Sine.inOut'
     });
-    this.turtleCollider = this.physics.add.overlap(this.player, this.turtle, () => this.onHit(), null, this);
+    this.turtleCollider = this.physics.add.overlap(this.player, this.turtle, () => this.onHit('turtle'), null, this);
     // φυσαλίδες πίσω της (wake)
     this.turtleWake = this.time.addEvent({ delay: 180, loop: true, callback: () => {
       if (!this.turtle || !this.turtle.active) return;
@@ -539,6 +544,7 @@ class GameScene extends Phaser.Scene {
   /* ================= SCORING / DAMAGE ================= */
   onCatch(can) {
     if (this.gameEnded || !can.active) return;
+    this.sound.play(Phaser.Utils.Array.GetRandom(['can_open_1', 'can_open_2']), { volume: 0.7 });
     const now = this.time.now;
     if (now - this.lastCatchTime <= TUNE.comboWindow) {
       this.combo = Math.min(this.combo + 1, 3);
@@ -560,6 +566,7 @@ class GameScene extends Phaser.Scene {
 
     if (this.combo >= 2) {
       SFX.combo(this.combo);
+      this.puff();                        // φουσκώνει (lago_big) για λίγο
       const col = this.combo >= 3 ? '#FF6B3D' : '#FAC775';   // x3 «καυτό» πορτοκαλί
       this.comboText.setColor(col).setText('COMBO x' + this.combo + '!').setAlpha(1).setScale(0.6);
       this.tweens.add({ targets: this.comboText, scale: this.combo >= 3 ? 1.15 : 1, duration: 200, ease: 'Back.out' });
@@ -570,11 +577,9 @@ class GameScene extends Phaser.Scene {
       } else if (navigator.vibrate) {
         try { navigator.vibrate(18); } catch (e) {}
       }
-    } else {
-      SFX.catch();
     }
 
-    this.tweens.add({ targets: this.player, scaleX: 1.25, duration: 90, yoyo: true });
+    this.squishX = 1.28; this.squishY = 0.9;
     this.burstAt(can.x, can.y, this.combo >= 2 ? 0xFAC775 : 0xFFFFFF);
     can.destroy();
   }
@@ -595,9 +600,12 @@ class GameScene extends Phaser.Scene {
     }
   }
 
-  onHit() {
+  onHit(source) {
     if (this.invulnerable || this.gameEnded) return;
     SFX.hit();
+    // ατάκα (μία τη φορά, ολόκληρη): χελώνα ≠ πετονιά
+    if (source === 'turtle') AUDIO.voice(this, ['v_exorkismo', 'v_xtypima']);
+    else AUDIO.voice(this, ['v_gloiwdhs', 'v_skotwsei']);
     if (navigator.vibrate) { try { navigator.vibrate(70); } catch (e) {} }   // haptics σε χτύπημα
     this.lives--;
     this.updateHearts();
@@ -663,7 +671,7 @@ class GameScene extends Phaser.Scene {
         this.player.body.setGravityY(0);
         this.canJump = true;
         // squash στην "προσγείωση" + φυσαλίδες
-        this.tweens.add({ targets: this.player, scaleY: 0.85, scaleX: 1.25, duration: 90, yoyo: true });
+        this.squishX = 1.25; this.squishY = 0.8;
         for (let i = 0; i < 3; i++) {
           const b = this.add.image(this.player.x + Phaser.Math.Between(-20, 20), this.player.y + 24, 'bubble')
             .setScale(0.4).setAlpha(0.6).setDepth(4);
@@ -678,6 +686,12 @@ class GameScene extends Phaser.Scene {
       this.player.setY(this.restY + Math.sin(time * 0.004) * 7);
       this.player.setAngle(Math.sin(time * (moving ? 0.02 : 0.006)) * (moving ? 7 : 3));
     }
+
+    // ── scale juice (per-frame): squish επαναφορά + αναπνοή ──
+    this.squishX += (1 - this.squishX) * 0.2;
+    this.squishY += (1 - this.squishY) * 0.2;
+    const breathe = 1 + Math.sin(time * 0.005) * 0.04;
+    this.player.setScale(this.pScale * this.squishX, this.pScale * this.squishY * breathe);
 
     // sway τενεκεδάκια + βυθός
     this.fallGroup.children.each(obj => {

@@ -7,8 +7,30 @@ desktop.ini
 .vscode/
 .idea/
 
-# Πρωτότυπο αρχείο ήχου με κενά στο όνομα — χρησιμοποιούμε το assets/reel.wav
-assets/EQUIPRec_Fishing Reel Line Pull Fishing_GENHD1-11213.wav
-
 # Claude Code local settings
 .claude/
+
+# ── ASSETS ──────────────────────────────────────────────
+# Τα βαριά source originals μένουν ΤΟΠΙΚΑ (δεν ανεβαίνουν στο repo/Pages).
+# Ανεβαίνουν ΜΟΝΟ τα optimized runtime αρχεία (whitelist παρακάτω).
+assets/*
+!assets/lago.png
+!assets/lagobig.png
+!assets/can1.png
+!assets/can2.png
+!assets/can3.png
+!assets/turtle2.png
+!assets/flamingo.png
+!assets/seabed.png
+!assets/island2.png
+!assets/logo2.png
+!assets/og.jpg
+!assets/reel.wav
+!assets/canopen1.mp3
+!assets/canopen2.mp3
+!assets/v_gloiwdhs.mp3
+!assets/v_skotwsei.mp3
+!assets/v_exorkismo.mp3
+!assets/v_xtypima.mp3
+!assets/music_menu.mp3
+!assets/music_game.mp3

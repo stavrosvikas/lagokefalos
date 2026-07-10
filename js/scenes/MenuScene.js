@@ -11,14 +11,14 @@ class MenuScene extends Phaser.Scene {
     this.W = W; this.H = H;
     this.buildBackdrop();
 
-    // Τίτλος με bounce-in
-    this.title = this.add.text(W / 2, H * 0.15, 'LAGOKEFALOS', {
-      fontFamily: UI.FONT, fontSize: '72px', fontStyle: 'bold',
-      color: '#ffffff', stroke: '#0a4f8f', strokeThickness: 12,
-      shadow: { offsetY: 6, color: '#04345c', blur: 0, fill: true }
-    }).setOrigin(0.5).setScale(0);
-    this.tweens.add({ targets: this.title, scale: 1, duration: 500, ease: 'Back.out' });
-    this.tweens.add({ targets: this.title, y: H * 0.15 - 8, duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+    // Logo με bounce-in (logo2 = 900x369)
+    const logoScale = 560 / 900;
+    this.title = this.add.image(W / 2, H * 0.17, 'logo').setScale(0);
+    this.tweens.add({ targets: this.title, scale: logoScale, duration: 500, ease: 'Back.out' });
+    this.tweens.add({ targets: this.title, y: H * 0.17 - 8, duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+
+    // μουσική μενού (sailor loop) — ξεκινά μόλις ξεκλειδώσει ο ήχος
+    AUDIO.playMusic(this, 'music_menu', 0.45);
 
     this._starting = false;   // reset: η σκηνή επαναχρησιμοποιείται σε RESTART
 
@@ -79,7 +79,6 @@ class MenuScene extends Phaser.Scene {
     this.registry.set('deviceMode', mode);   // θυμήσου την επιλογή για το υπόλοιπο session
     SFX.unlock();
     AUDIO.unlock();
-    AUDIO.startMusic(this);      // η μουσική ξεκινά με το πρώτο user gesture
     this.step1.hits.forEach(h => h.disableInteractive());
     this.tweens.add({
       targets: this.step1, alpha: 0, y: -30, duration: 250,

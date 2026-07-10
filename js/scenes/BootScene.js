@@ -6,21 +6,48 @@ class BootScene extends Phaser.Scene {
   constructor() { super('Boot'); }
 
   preload() {
-    // Πραγματικός ήχος πετονιάς (line pull). Άλλα audio (music/ambient)
-    // μπαίνουν εδώ όταν έρθουν — το AUDIO τα προτιμά αυτόματα. Δες README.
-    this.load.audio('reel', 'assets/reel.wav');
+    // loading indicator (φορτώνουμε ~6MB audio/images)
+    const W = this.scale.width, H = this.scale.height;
+    this.cameras.main.setBackgroundColor('#0a4f8f');
+    this.add.text(W / 2, H / 2 - 24, 'Λαγοκέφαλος', {
+      fontFamily: 'Fredoka, Trebuchet MS, sans-serif', fontSize: '34px', fontStyle: 'bold', color: '#ffffff'
+    }).setOrigin(0.5);
+    const bar = this.add.graphics();
+    this.load.on('progress', (p) => {
+      bar.clear();
+      bar.fillStyle(0xffffff, 0.25); bar.fillRoundedRect(W / 2 - 150, H / 2 + 20, 300, 12, 6);
+      bar.fillStyle(0x1D9E75, 1);   bar.fillRoundedRect(W / 2 - 150, H / 2 + 20, 300 * p, 12, 6);
+    });
+
+    // ── Εικόνες (optimized: trimmed + downscaled από τα originals σου) ──
+    this.load.image('lago',       'assets/lago.png');
+    this.load.image('lago_big',   'assets/lagobig.png');
+    this.load.image('can_red',    'assets/can1.png');
+    this.load.image('can_blue',   'assets/can2.png');
+    this.load.image('can_teal',   'assets/can3.png');
+    this.load.image('turtle',     'assets/turtle2.png');
+    this.load.image('flamingo',   'assets/flamingo.png');
+    this.load.image('seabed_img', 'assets/seabed.png');
+    this.load.image('island_img', 'assets/island2.png');
+    this.load.image('logo',       'assets/logo2.png');
+    // ── Ήχοι ──
+    this.load.audio('reel',        'assets/reel.wav');
+    this.load.audio('can_open_1',  'assets/canopen1.mp3');
+    this.load.audio('can_open_2',  'assets/canopen2.mp3');
+    this.load.audio('v_gloiwdhs',  'assets/v_gloiwdhs.mp3');    // ατάκα δαγκώματος πετονιάς
+    this.load.audio('v_skotwsei',  'assets/v_skotwsei.mp3');
+    this.load.audio('v_exorkismo', 'assets/v_exorkismo.mp3');   // ατάκα χτυπήματος χελώνας
+    this.load.audio('v_xtypima',   'assets/v_xtypima.mp3');
+    this.load.audio('music_menu',  'assets/music_menu.mp3');
+    this.load.audio('music_game',  'assets/music_game.mp3');
   }
 
   create() {
-    this.makeLagokefalos();
-    this.makeCans();
+    // Μόνο τα procedural που ΔΕΝ έχουν PNG: αγκίστρι, φυσαλίδα, καρδιά, icons.
     this.makeHook();
-    this.makeTurtle();
     this.makeBubble();
-    this.makeDecor();
     this.makeHeart();
     this.makeIcons();
-    this.makeSeabedProps();
     this.startWhenReady();
   }
 
