@@ -1,6 +1,6 @@
 # LAGOKEFALOS 🐡
 
-Toon arcade catcher μέσα στη θάλασσα. Reference: Noogra Nuts.
+Toon arcade catcher μέσα στη θάλασσα.
 Zero build step — ανοίγεις το `index.html` και παίζει (καλύτερα με Live Server στο VS Code λόγω του DOM input στο game over).
 
 ---
