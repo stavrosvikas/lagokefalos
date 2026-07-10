@@ -20,10 +20,21 @@ class MenuScene extends Phaser.Scene {
     this.tweens.add({ targets: this.title, scale: 1, duration: 500, ease: 'Back.out' });
     this.tweens.add({ targets: this.title, y: H * 0.15 - 8, duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
 
+    this._starting = false;   // reset: η σκηνή επαναχρησιμοποιείται σε RESTART
+
     this.step1 = this.add.container(0, 0);
     this.step2 = this.add.container(0, 0);
     this.buildStep1();
-    this.step2.setVisible(false);
+
+    const savedMode = this.registry.get('deviceMode');
+    if (savedMode) {
+      // ήδη διάλεξε συσκευή σε αυτό το session → κατευθείαν στα controls/START
+      this.deviceMode = savedMode;
+      this.step1.setVisible(false);
+      this.buildStep2();
+    } else {
+      this.step2.setVisible(false);
+    }
 
     UI.muteButton(this, W - 40, 40);
 
@@ -65,6 +76,7 @@ class MenuScene extends Phaser.Scene {
 
   chooseDevice(mode) {
     this.deviceMode = mode;
+    this.registry.set('deviceMode', mode);   // θυμήσου την επιλογή για το υπόλοιπο session
     SFX.unlock();
     AUDIO.unlock();
     AUDIO.startMusic(this);      // η μουσική ξεκινά με το πρώτο user gesture
