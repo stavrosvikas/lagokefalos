@@ -41,12 +41,16 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div id="game-container"></div>
+  <!-- game-shell = ο fullscreen target: περιέχει ΚΑΙ τον canvas ΚΑΙ τα controls,
+       ώστε σε fullscreen (Android) να μη χάνονται joystick/κουμπί. -->
+  <div id="game-shell">
+    <div id="game-container"></div>
 
-  <!-- Mobile controls (εμφανίζονται μόνο σε mobile mode, μέσα στα safe areas) -->
-  <div id="mobile-controls" class="hidden">
-    <div id="joystick-zone"></div>
-    <button id="jump-btn" aria-label="Jump">▲</button>
+    <!-- Mobile controls (εμφανίζονται μόνο σε mobile mode, μέσα στα safe areas) -->
+    <div id="mobile-controls" class="hidden">
+      <div id="joystick-zone"></div>
+      <button id="jump-btn" aria-label="Jump">▲</button>
+    </div>
   </div>
 
   <!-- Rotate prompt για portrait -->

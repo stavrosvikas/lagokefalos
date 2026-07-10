@@ -11,12 +11,18 @@ html, body {
   font-family: "Fredoka", "Trebuchet MS", "Comic Sans MS", sans-serif;
 }
 
-/* ΜΟΝΟ το Phaser κεντράρει (autoCenter). ΜΗΝ βάλεις flex/justify εδώ,
-   αλλιώς διπλό κεντράρισμα → το canvas φεύγει δεξιά (iOS Safari). */
-#game-container {
+/* game-shell = fullscreen target (canvas + controls μαζί) */
+#game-shell {
   position: fixed;
   inset: 0;
   overflow: hidden;
+}
+
+/* ΜΟΝΟ το Phaser κεντράρει (autoCenter). ΜΗΝ βάλεις flex/justify εδώ,
+   αλλιώς διπλό κεντράρισμα → το canvas φεύγει δεξιά (iOS Safari). */
+#game-container {
+  position: absolute;
+  inset: 0;
 }
 
 #game-container canvas {
@@ -25,9 +31,9 @@ html, body {
 
 .hidden { display: none !important; }
 
-/* ---- Mobile controls: μέσα στα πλαϊνά safe zones ---- */
+/* ---- Mobile controls: μέσα στο shell, πάνω από τον canvas ---- */
 #mobile-controls {
-  position: fixed;
+  position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 20;

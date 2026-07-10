@@ -15,7 +15,9 @@ const config = {
   },
   scale: {
     mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    // fullscreen σε όλο το shell (canvas + mobile controls). Element, όχι string.
+    fullscreenTarget: document.getElementById('game-shell')
   },
   scene: [BootScene, MenuScene, GameScene, GameOverScene]
 };
@@ -40,12 +42,18 @@ function goFullscreen(scene) {
   setTimeout(() => window.scrollTo(0, 1), 300);
 }
 
-/* ---- Rotate overlay: μόνο σε touch συσκευές σε portrait ---- */
-function checkOrientation() {
-  const isTouch = 'ontouchstart' in window;
-  const isPortrait = window.innerHeight > window.innerWidth;
-  document.body.classList.toggle('needs-rotate', isTouch && isPortrait);
+/* ---- Rotate overlay: μόνο σε touch συσκευές σε portrait ----
+   matchMedia αντί για innerHeight/innerWidth (αξιόπιστο σε iOS Safari). */
+function isTouchDevice() {
+  return window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
 }
+function checkOrientation() {
+  const isPortrait = window.matchMedia('(orientation: portrait)').matches;
+  document.body.classList.toggle('needs-rotate', isTouchDevice() && isPortrait);
+}
+const orientationMQ = window.matchMedia('(orientation: portrait)');
+if (orientationMQ.addEventListener) orientationMQ.addEventListener('change', checkOrientation);
+else if (orientationMQ.addListener) orientationMQ.addListener(checkOrientation);   // παλιά iOS
 window.addEventListener('resize', checkOrientation);
-window.addEventListener('orientationchange', () => setTimeout(checkOrientation, 200));
+window.addEventListener('orientationchange', () => { checkOrientation(); setTimeout(checkOrientation, 300); });
 checkOrientation();
