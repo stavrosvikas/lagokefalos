@@ -89,11 +89,15 @@ const AUDIO = (() => {
     if (voiceSnd) return;   // κάποια ατάκα παίζει ήδη → αγνόησε τη νέα
     const key = Array.isArray(keys) ? Phaser.Utils.Array.GetRandom(keys) : keys;
     if (!scene.cache.audio.exists(key)) return;
-    const s = scene.sound.add(key, { volume: 1.0 });
+    const s = scene.sound.add(key, { volume: 1.0 });   // ατάκες = full ένταση
     voiceSnd = s;
-    const free = () => { try { s.destroy(); } catch (e) {} if (voiceSnd === s) voiceSnd = null; };
+    // DUCKING: χαμήλωσε τη μουσική όσο μιλάει η ατάκα, επανάφερε μετά
+    const musicVol = current ? current.volume : null;
+    if (current) current.setVolume(0.1);
+    const restore = () => { if (current && musicVol != null) current.setVolume(musicVol); };
+    const free = () => { try { s.destroy(); } catch (e) {} if (voiceSnd === s) voiceSnd = null; restore(); };
     s.once(Phaser.Sound.Events.COMPLETE, free);
-    s.once(Phaser.Sound.Events.STOP, () => { if (voiceSnd === s) voiceSnd = null; });
+    s.once(Phaser.Sound.Events.STOP, () => { if (voiceSnd === s) voiceSnd = null; restore(); });
     s.play();
   }
 

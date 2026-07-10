@@ -51,8 +51,8 @@ class MenuScene extends Phaser.Scene {
     this.add.circle(W * 0.1, H * 0.06, 30, 0xFAC775);
     this.seaGfx = this.add.graphics();
     // ψαράκι διακοσμητικό
-    const fish = this.add.image(W * 0.86, H * 0.62, 'lago').setScale(1.4).setAngle(-6);
-    this.tweens.add({ targets: fish, y: fish.y - 26, angle: 6, duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+    const fish = this.add.image(W * 0.9, H * 0.8, 'lago').setScale(0.42).setAngle(-6);
+    this.tweens.add({ targets: fish, y: fish.y - 20, angle: 6, duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
     // φυσαλίδες
     this.time.addEvent({ delay: 700, loop: true, callback: () => {
       const b = this.add.image(Phaser.Math.Between(30, W - 30), H + 10, 'bubble')

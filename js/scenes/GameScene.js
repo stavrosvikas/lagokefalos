@@ -100,19 +100,16 @@ class GameScene extends Phaser.Scene {
     sky.fillGradientStyle(0x86cdee, 0x86cdee, 0xFCEBCB, 0xFCEBCB, 1);
     sky.fillRect(0, 0, W, hy);
 
-    // ήλιος με λάμψη (δεξιά, αφού το νησί πάει αριστερά)
-    const sunX = W * 0.86, sunY = hy * 0.32;
+    // ήλιος με λάμψη (αριστερά)
+    const sunX = W * 0.13, sunY = hy * 0.32;
     const glow = this.add.graphics().setDepth(0);
     glow.fillStyle(0xFFF3D0, 0.18); glow.fillCircle(sunX, sunY, 46);
     glow.fillStyle(0xFFF0C4, 0.30); glow.fillCircle(sunX, sunY, 32);
     this.add.circle(sunX, sunY, 20, 0xFFE39A).setDepth(0);
 
-    // ── ΝΗΣΙ (αριστερά, πάνω στη γραμμή του νερού) ──
-    this.add.image(10, hy + 30, 'island_img')
-      .setOrigin(0, 1).setDisplaySize(340, 340 * (315 / 780)).setDepth(0);
-
-    // ιστιοφόρο που διασχίζει τον ορίζοντα
-    this.buildSailboat();
+    // ── ΝΗΣΙ (ΔΕΞΙΑ, πάνω στη γραμμή του νερού) ──
+    this.add.image(W - 10, hy + 30, 'island_img')
+      .setOrigin(1, 1).setDisplaySize(340, 340 * (315 / 780)).setDepth(0);
 
     // ── ΘΑΛΑΣΣΑ (animated fill στο update) ──
     this.seaGfx = this.add.graphics().setDepth(0);
@@ -198,23 +195,6 @@ class GameScene extends Phaser.Scene {
       const a = k * Math.PI / 2 + 0.5;
       g.beginPath(); g.moveTo(mx, my); g.lineTo(mx + Math.cos(a) * 11, my + Math.sin(a) * 11); g.strokePath();
     }
-  }
-
-  /* ── Ιστιοφόρο που διασχίζει τον ορίζοντα ── */
-  buildSailboat() {
-    const W = this.W, hy = this.waterY;
-    const boat = this.add.container(-40, hy - 4).setDepth(0);
-    const g = this.add.graphics();
-    g.fillStyle(0x3a4b5c, 1);
-    g.fillTriangle(-11, 0, 11, 0, 7, 6);         // κύτος
-    g.fillRect(-11, -1, 22, 2);
-    g.fillStyle(0xFFFFFF, 1);
-    g.fillTriangle(0, -18, 0, -2, 9, -2);        // κύριο πανί
-    g.fillStyle(0xF2D06B, 1);
-    g.fillTriangle(0, -15, 0, -3, -7, -3);       // μικρό πανί (κίτρινο)
-    boat.add(g);
-    this.tweens.add({ targets: boat, x: W + 40, duration: 46000, repeat: -1, ease: 'Linear' });
-    this.tweens.add({ targets: boat, angle: 3, y: hy - 8, duration: 2600, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
   }
 
   drawSea(time) {
@@ -378,7 +358,7 @@ class GameScene extends Phaser.Scene {
     const x = this.laneX(lane);
     const key = Phaser.Utils.Array.GetRandom(['can_red', 'can_blue', 'can_teal']);
     const can = this.fallGroup.create(x, this.waterY - 30, key);
-    can.setDepth(5);
+    can.setDepth(5).setScale(0.5);   // cun 0X ~108-137x190 → ~55-70x95
     can.body.setSize(can.width + TUNE.swayAmp * 2, can.height).setOffset(-TUNE.swayAmp, 0);
     can.baseX = x;
     can.swayPhase = Math.random() * Math.PI * 2;
@@ -407,13 +387,13 @@ class GameScene extends Phaser.Scene {
 
     // πραγματικός ήχος πετονιάς (line pull) όσο κατεβαίνει
     if (this.cache.audio.exists('reel')) {
-      this.sound.play('reel', { volume: 0.55 });
+      this.sound.play('reel', { volume: 0.42 });
     } else {
       SFX.reel((hook.targetY - hook.y) / TUNE.hookDropSpeed);   // fallback synth
     }
 
     if (hook.hasBait) {
-      hook.bait = this.add.image(x, hook.y - 4, 'can_red').setScale(0.8).setDepth(5).setAngle(20);
+      hook.bait = this.add.image(x, hook.y - 4, 'can_red').setScale(0.42).setDepth(5).setAngle(20);
     }
 
     this.splashAt(x, this.waterY);
@@ -522,10 +502,10 @@ class GameScene extends Phaser.Scene {
   launchTurtle() {
     if (this.gameEnded) return;
     this.turtle = this.physics.add.image(this.W + 140, this.restY, 'turtle').setDepth(5);
-    this.turtle.setFlipX(true).setScale(1.1);
+    this.turtle.setFlipX(true).setScale(0.42);   // turtle2 = 480x312
     // hitbox ΜΟΝΟ στο κάτω μισό (καβούκι) → ένα κανονικό jump την προσπερνά,
     // αλλά αν στέκεσαι στο restY σε χτυπάει κανονικά.
-    this.turtle.body.setSize(150, 56).setOffset(30, 64);
+    this.turtle.body.setSize(360, 140).setOffset(60, 150);
     this.turtle.setVelocityX(-TUNE.turtleSpeed);
     this.tweens.add({
       targets: this.turtle, y: this.restY - 12, angle: -3, duration: 650,
@@ -544,7 +524,7 @@ class GameScene extends Phaser.Scene {
   /* ================= SCORING / DAMAGE ================= */
   onCatch(can) {
     if (this.gameEnded || !can.active) return;
-    this.sound.play(Phaser.Utils.Array.GetRandom(['can_open_1', 'can_open_2']), { volume: 0.7 });
+    this.sound.play(Phaser.Utils.Array.GetRandom(['can_open_1', 'can_open_2']), { volume: 0.5 });
     const now = this.time.now;
     if (now - this.lastCatchTime <= TUNE.comboWindow) {
       this.combo = Math.min(this.combo + 1, 3);

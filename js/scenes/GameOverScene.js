@@ -13,7 +13,7 @@ class GameOverScene extends Phaser.Scene {
     document.getElementById('mobile-controls').classList.add('hidden');
 
     // βυθισμένο ψαράκι για συναίσθημα
-    const fish = this.add.image(W * 0.12, H * 0.8, 'lago').setScale(1.2).setAngle(160).setAlpha(0.5);
+    const fish = this.add.image(W * 0.12, H * 0.8, 'lago').setScale(0.34).setAngle(160).setAlpha(0.5);
     this.tweens.add({ targets: fish, y: fish.y + 16, duration: 2000, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
 
     const t = this.add.text(W / 2, H * 0.1, 'GAME OVER', {
