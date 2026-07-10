@@ -628,7 +628,8 @@ class GameScene extends Phaser.Scene {
     let dir = 0;
     if (this.cursors.left.isDown) dir = -1;
     else if (this.cursors.right.isDown) dir = 1;
-    if (Math.abs(this.joyX) > 0.15) dir = this.joyX;
+    // joystick: μικρό deadzone + amplify ώστε να φτάνει full speed σαν τα βέλη
+    if (Math.abs(this.joyX) > 0.12) dir = Phaser.Math.Clamp(this.joyX / 0.55, -1, 1);
 
     this.player.setVelocityX(dir * TUNE.playerSpeed);
     if (dir < -0.1) this.player.setFlipX(true);

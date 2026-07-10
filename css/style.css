@@ -36,7 +36,7 @@ html, body {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 20;
+  z-index: 40;            /* πάνω από canvas & Phaser DOM container */
 }
 
 #joystick-zone {
@@ -50,8 +50,8 @@ html, body {
 
 #jump-btn {
   position: absolute;
-  right: max(18px, env(safe-area-inset-right));
-  bottom: max(24px, env(safe-area-inset-bottom));
+  right: max(24px, env(safe-area-inset-right));
+  bottom: max(40px, env(safe-area-inset-bottom));   /* πιο ψηλά για να μην το κρύβει η μπάρα του in-app browser */
   width: 84px;
   height: 84px;
   border-radius: 50%;
