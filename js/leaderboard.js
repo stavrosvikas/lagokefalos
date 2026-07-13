@@ -8,11 +8,11 @@
 const Leaderboard = (() => {
   const CONFIG = {
     mode: 'remote',
-    /* Host-relative on purpose. Στο luben.tv λύνεται στο Next.js route (Redis-backed).
-       Οπουδήποτε αλλού (local dev, GitHub Pages) δίνει 404 και το leaderboard κάνει
-       αυτόματα fallback σε localStorage — δηλαδή το παιχνίδι παίζει παντού, χωρίς
-       να χρειάζεται κανείς να πειράξει το CONFIG για να δουλέψει τοπικά. */
-    remoteUrl: '/api/lagokefalos/scores',
+    /* Σχετικό path, μέσα στο ίδιο repo: api/scores.php (SQLite).
+       Οπουδήποτε δεν τρέχει PHP (local dev με static server, GitHub Pages) δίνει
+       404 και το leaderboard πέφτει ΜΟΝΟ ΤΟΥ σε localStorage — άρα το παιχνίδι
+       παίζει παντού χωρίς να πειράξει κανείς το CONFIG. */
+    remoteUrl: 'api/scores.php',
     maxEntries: 10,
     storageKey: 'lagokefalos_scores_v1',
 

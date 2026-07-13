@@ -41,24 +41,29 @@ Idempotent, κρατάει backup των Apache configs, τρέχει `configtes
 
 ## Leaderboard
 
-`js/leaderboard.js` → `remoteUrl: '/api/lagokefalos/scores'` — **host-relative**.
+`js/leaderboard.js` → `remoteUrl: 'api/scores.php'` — **σχετικό, μέσα στο ίδιο repo**.
 
-- Στο luben.tv λύνεται σε Next.js API route (repo `prakasrel777/lubentv`,
-  `pages/api/lagokefalos/scores.tsx`), με **Redis sorted set** από πίσω.
-- Οπουδήποτε αλλού (local dev) δίνει 404 και το leaderboard πέφτει **αυτόματα σε
-  localStorage**. Δεν χρειάζεται να πειράξεις τίποτα για να δουλέψεις τοπικά.
+- Στο luben.tv το τρέχει ο Apache (η PHP είναι ήδη καλωδιωμένη server-wide μέσω
+  `php8.2-fpm.conf`, οπότε δεν χρειάστηκε καμία αλλαγή στο vhost). Backend: **SQLite**.
+- Η βάση ζει στο `/var/lib/lagokefalos/scores.db` — **εκτός docroot**, επίτηδες: το
+  docroot είναι git checkout που το deploy script το σβήνει με `reset --hard`, και
+  ό,τι κάθεται μέσα του κατεβαίνει με ένα GET.
+- Όπου δεν τρέχει PHP (local static server, GitHub Pages) δίνει 404 και το
+  leaderboard πέφτει **μόνο του σε localStorage**. Δεν χρειάζεται να πειράξεις
+  τίποτα για να δουλέψεις τοπικά.
 
-Ένα entry ανά nickname, με το **καλύτερο** σκορ του (`ZADD GT`) — αλλιώς ένας
-παίκτης γεμίζει και τις 10 θέσεις με την ίδια παρτίδα.
+Μία εγγραφή ανά nickname, με το **καλύτερο** σκορ του (`ON CONFLICT ... WHERE
+excluded.score > scores.score`) — αλλιώς ένας παίκτης γεμίζει και τις 10 θέσεις
+με την ίδια παρτίδα, και μια χειρότερη επανάληψη θα του έριχνε το ρεκόρ.
 
 ### Anti-cheat
 
 Ο server υλοποιεί και τους 4 ελέγχους του README: υπογραφή, plausibility
 (`score > 130 × duration` → απόρριψη), rate limit ανά IP, sanitize ονόματος.
 
-> Το `salt` **πρέπει να είναι ίδιο** σε `js/leaderboard.js` και στο endpoint. Αν
-> το αλλάξεις εδώ, άλλαξέ το και εκεί (ή θέσε `LAGOKEFALOS_SALT` στο `.env` του
-> nxcode) — αλλιώς **κάθε** υποβολή σκορ θα απορρίπτεται με 403.
+> Το `salt` **πρέπει να είναι ίδιο** σε `js/leaderboard.js` και σε `api/scores.php`.
+> Αν το αλλάξεις στη μία πλευρά και όχι στην άλλη, **κάθε** υποβολή σκορ
+> απορρίπτεται με 403.
 
 Και για να μην υπάρχει παρεξήγηση: το salt **δεν είναι μυστικό**. Ο client
 υπολογίζει το ίδιο hash από δημόσιο JS, άρα όποιος ανοίξει DevTools το βλέπει.
