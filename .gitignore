@@ -25,6 +25,14 @@ assets/*
 !assets/island2.png
 !assets/logo2.png
 !assets/og.jpg
+# Luben hosting: PWA icons + favicons generated for luben.tv/lagokefalos-summer.
+# They are runtime files, so they must survive the assets/* blanket ignore above —
+# without these the manifest and the favicon 404 on a fresh clone.
+!assets/icon-32.png
+!assets/icon-180.png
+!assets/icon-192.png
+!assets/icon-512.png
+!assets/icon-512-maskable.png
 !assets/reel.wav
 !assets/canopen1_v02.mp3
 !assets/canopen2_v02.mp3
