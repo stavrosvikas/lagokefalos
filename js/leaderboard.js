@@ -7,8 +7,8 @@
    ============================================================ */
 const Leaderboard = (() => {
   const CONFIG = {
-    mode: 'local',              // 'local' | 'remote'   <-- ΜΟΝΗ ΑΛΛΑΓΗ ΓΙΑ GLOBAL
-    remoteUrl: '',              // π.χ. 'https://luben.tv/api/lagokefalos/scores'
+    mode: 'remote',                                          // global leaderboard
+    remoteUrl: 'https://luben.tv/api/lagokefalos/scores',    // Next.js route, Redis-backed
     maxEntries: 10,
     storageKey: 'lagokefalos_scores_v1',
 
@@ -17,7 +17,7 @@ const Leaderboard = (() => {
        casual cheaters (που απλά αλλάζουν το POST body από DevTools) — ΔΕΝ κόβει
        κάποιον αποφασισμένο που θα διαβάσει το salt και θα φτιάξει σωστό hash.
        Η ΠΡΑΓΜΑΤΙΚΗ άμυνα είναι server-side (δες README: plausibility checks). */
-    salt: 'lagok3f4los_2026_luben'
+    salt: 'lbn_lgk_summer_2026_a7f3d9'
   };
 
   /* SHA-256 υπογραφή του (name|score|duration|salt) */
