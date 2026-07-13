@@ -249,14 +249,19 @@ class GameScene extends Phaser.Scene {
     this.canJump = true;
   }
 
-  /* Μετά από combo: ο λαγοκέφαλος «φουσκώνει» (lago_big) για λίγο */
+  /* Μετά από combo: ο λαγοκέφαλος «φουσκώνει» (lago_big) για λίγο.
+     ΠΡΟΣΟΧΗ: το texture αλλάζει μέγεθος frame (440x245 → 520x392), άρα ΠΡΕΠΕΙ
+     να ξαναρυθμιστεί το hitbox — αλλιώς μένει μετατοπισμένο και τα χτυπήματα
+     «περνάνε από μέσα» χωρίς να μειώνουν ζωή. */
   puff() {
     if (this._puffEvent) this._puffEvent.remove();
     this.player.setTexture('lago_big');
+    this.player.body.setSize(380, 290).setOffset(70, 55);   // κεντραρισμένο στο 520x392
     this.pScale = this.bigScale;
     this.squishX = 1.3; this.squishY = 1.12;
     this._puffEvent = this.time.delayedCall(1300, () => {
       this.player.setTexture('lago');
+      this.player.body.setSize(300, 150).setOffset(70, 55);  // πίσω στο 440x245
       this.pScale = this.smallScale;
       this._puffEvent = null;
     });
@@ -545,7 +550,7 @@ class GameScene extends Phaser.Scene {
     this.tweens.add({ targets: pop, y: pop.y - 50, alpha: 0, duration: 700, onComplete: () => pop.destroy() });
 
     if (this.combo >= 2) {
-      SFX.combo(this.combo);
+      this.sound.play(Phaser.Utils.Array.GetRandom(['combo_1', 'combo_2']), { volume: 0.75 });
       this.puff();                        // φουσκώνει (lago_big) για λίγο
       const col = this.combo >= 3 ? '#FF6B3D' : '#FAC775';   // x3 «καυτό» πορτοκαλί
       this.comboText.setColor(col).setText('COMBO x' + this.combo + '!').setAlpha(1).setScale(0.6);
@@ -593,13 +598,16 @@ class GameScene extends Phaser.Scene {
 
     this.invulnerable = true;
     this.player.setTint(0xE24B4A);
-    this.tweens.add({
-      targets: this.player, alpha: 0.25, duration: 140, yoyo: true, repeat: 5,
-      onComplete: () => {
-        this.player.clearTint();
-        this.player.setAlpha(1);
-        this.invulnerable = false;
-      }
+    const flash = this.tweens.add({ targets: this.player, alpha: 0.25, duration: 140, yoyo: true, repeat: 5 });
+    /* ΤΟ BUG ΠΟΥ ΕΦΤΙΑΞΕ ΑΥΤΟ: πριν, το invulnerable το μηδένιζε το onComplete
+       αυτού του tween. Αν το tween δεν ολοκληρωνόταν ποτέ (διακοπή/αντικατάσταση),
+       το flag έμενε true για ΟΛΗ την παρτίδα → ο παίκτης μόνιμα άτρωτος και
+       αγκίστρια/χελώνες δεν αφαιρούσαν ζωή. Τώρα το καθαρίζει TIMER — πάντα. */
+    this.time.delayedCall(TUNE.invulnMs, () => {
+      if (flash) flash.stop();
+      this.player.clearTint();
+      this.player.setAlpha(1);
+      this.invulnerable = false;
     });
     this.cameras.main.shake(180, 0.008);
 
@@ -613,7 +621,10 @@ class GameScene extends Phaser.Scene {
     this.cleanupInput();
     this.time.delayedCall(700, () => {
       this.cameras.main.fadeOut(400, 4, 26, 46);
-      this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('GameOver', { score: this.score }));
+      this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('GameOver', {
+        score: this.score,
+        duration: Math.round(this.elapsed / 1000)   // για το anti-cheat plausibility check
+      }));
     });
   }
 

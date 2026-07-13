@@ -10,8 +10,23 @@ const Leaderboard = (() => {
     mode: 'local',              // 'local' | 'remote'   <-- ΜΟΝΗ ΑΛΛΑΓΗ ΓΙΑ GLOBAL
     remoteUrl: '',              // π.χ. 'https://luben.tv/api/lagokefalos/scores'
     maxEntries: 10,
-    storageKey: 'lagokefalos_scores_v1'
+    storageKey: 'lagokefalos_scores_v1',
+
+    /* ΠΡΟΣΟΧΗ — ΤΙ ΠΙΑΝΕΙ ΚΑΙ ΤΙ ΟΧΙ:
+       Το salt είναι ΟΡΑΤΟ σε όποιον ανοίξει το JS. Άρα η υπογραφή κόβει τους
+       casual cheaters (που απλά αλλάζουν το POST body από DevTools) — ΔΕΝ κόβει
+       κάποιον αποφασισμένο που θα διαβάσει το salt και θα φτιάξει σωστό hash.
+       Η ΠΡΑΓΜΑΤΙΚΗ άμυνα είναι server-side (δες README: plausibility checks). */
+    salt: 'lagok3f4los_2026_luben'
   };
+
+  /* SHA-256 υπογραφή του (name|score|duration|salt) */
+  async function sign(name, score, duration) {
+    if (!(window.crypto && window.crypto.subtle)) return '';   // π.χ. σε file://
+    const msg = `${name}|${score}|${duration}|${CONFIG.salt}`;
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
 
   /* ---------- LOCAL ---------- */
   function localGet() {
@@ -36,11 +51,12 @@ const Leaderboard = (() => {
     return res.json(); // περιμένει [{name, score}, ...] ταξινομημένο desc
   }
 
-  async function remoteSave(name, score) {
+  async function remoteSave(name, score, duration) {
+    const sig = await sign(name, score, duration);
     const res = await fetch(CONFIG.remoteUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, score })
+      body: JSON.stringify({ name, score, duration, sig })
     });
     if (!res.ok) throw new Error('leaderboard save failed');
     return res.json(); // επιστρέφει το ενημερωμένο top-10
@@ -56,10 +72,12 @@ const Leaderboard = (() => {
       return localGet();
     },
 
-    async submit(name, score) {
+    /* duration = δευτερόλεπτα παρτίδας — το backend το χρειάζεται για
+       plausibility check (π.χ. 5000 πόντοι σε 3 δευτ. = προφανές cheat). */
+    async submit(name, score, duration = 0) {
       const clean = String(name).trim().slice(0, 12) || 'ΑΝΩΝΥΜΟΣ';
       if (CONFIG.mode === 'remote') {
-        try { return await remoteSave(clean, score); }
+        try { return await remoteSave(clean, score, duration); }
         catch (e) { console.warn('Remote save failed, fallback σε local', e); return localSave(clean, score); }
       }
       return localSave(clean, score);

@@ -4,7 +4,10 @@
 class GameOverScene extends Phaser.Scene {
   constructor() { super('GameOver'); }
 
-  init(data) { this.finalScore = data.score || 0; }
+  init(data) {
+    this.finalScore = data.score || 0;
+    this.duration = data.duration || 0;   // δευτερόλεπτα παρτίδας (anti-cheat)
+  }
 
   create() {
     const W = this.scale.width, H = this.scale.height;
@@ -75,7 +78,7 @@ class GameOverScene extends Phaser.Scene {
     // ίδιο clean με το Leaderboard.submit ώστε να ταιριάξει το highlight
     this.justName = String(raw).trim().slice(0, 12) || 'ΑΝΩΝΥΜΟΣ';
     this.nameEntered = true;
-    await Leaderboard.submit(this.justName, this.finalScore);
+    await Leaderboard.submit(this.justName, this.finalScore, this.duration);
     this.nameInput.setVisible(false);
     this.renderBoard();
   }
