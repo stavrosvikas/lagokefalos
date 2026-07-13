@@ -1,6 +1,8 @@
 /* ============================================================
-   BOOT SCENE — placeholder sprites με κώδικα.
-   Αντικατάσταση με τελικά PNG: δες ASSETS.md (ίδια keys).
+   BOOT SCENE — preload όλων των assets (εικόνες + ήχοι) με loading bar.
+   Στο create() φτιάχνονται procedural ΜΟΝΟ όσα δεν έχουν PNG:
+   hook, bubble, heart, icon_pc, icon_mobile.
+   Πίνακες με keys/αρχεία/διαστάσεις: δες README.
    ============================================================ */
 class BootScene extends Phaser.Scene {
   constructor() { super('Boot'); }
