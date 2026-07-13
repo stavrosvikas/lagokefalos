@@ -7,8 +7,12 @@
    ============================================================ */
 const Leaderboard = (() => {
   const CONFIG = {
-    mode: 'remote',                                          // global leaderboard
-    remoteUrl: 'https://luben.tv/api/lagokefalos/scores',    // Next.js route, Redis-backed
+    mode: 'remote',
+    /* Host-relative on purpose. Στο luben.tv λύνεται στο Next.js route (Redis-backed).
+       Οπουδήποτε αλλού (local dev, GitHub Pages) δίνει 404 και το leaderboard κάνει
+       αυτόματα fallback σε localStorage — δηλαδή το παιχνίδι παίζει παντού, χωρίς
+       να χρειάζεται κανείς να πειράξει το CONFIG για να δουλέψει τοπικά. */
+    remoteUrl: '/api/lagokefalos/scores',
     maxEntries: 10,
     storageKey: 'lagokefalos_scores_v1',
 
