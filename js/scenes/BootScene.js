@@ -1,6 +1,8 @@
 /* ============================================================
-   BOOT SCENE — placeholder sprites με κώδικα.
-   Αντικατάσταση με τελικά PNG: δες ASSETS.md (ίδια keys).
+   BOOT SCENE — preload όλων των assets (εικόνες + ήχοι) με loading bar.
+   Στο create() φτιάχνονται procedural ΜΟΝΟ όσα δεν έχουν PNG:
+   hook, bubble, heart, icon_pc, icon_mobile.
+   Πίνακες με keys/αρχεία/διαστάσεις: δες README.
    ============================================================ */
 class BootScene extends Phaser.Scene {
   constructor() { super('Boot'); }
@@ -32,14 +34,16 @@ class BootScene extends Phaser.Scene {
     this.load.image('logo',       'assets/logo2.png');
     // ── Ήχοι ──
     this.load.audio('reel',        'assets/reel.wav');
-    this.load.audio('can_open_1',  'assets/canopen1.mp3');
-    this.load.audio('can_open_2',  'assets/canopen2.mp3');
-    this.load.audio('v_gloiwdhs',  'assets/v_gloiwdhs.mp3');    // ατάκα δαγκώματος πετονιάς
-    this.load.audio('v_skotwsei',  'assets/v_skotwsei.mp3');
-    this.load.audio('v_exorkismo', 'assets/v_exorkismo.mp3');   // ατάκα χτυπήματος χελώνας
+    this.load.audio('can_open_1',  'assets/canopen1_v02.mp3');
+    this.load.audio('can_open_2',  'assets/canopen2_v02.mp3');
+    this.load.audio('combo_1',     'assets/combo01.mp3');        // combo: παίζει τυχαία 1 από τα 2
+    this.load.audio('combo_2',     'assets/combo02.mp3');
+    this.load.audio('v_gloiwdhs',  'assets/v_gloiwdhs_v02.mp3'); // ατάκα δαγκώματος πετονιάς
+    this.load.audio('v_skotwsei',  'assets/v_skotwsei_v02.mp3');
+    this.load.audio('v_exorkismo', 'assets/v_exorkismo_v02.mp3');// ατάκα χτυπήματος χελώνας
     this.load.audio('v_xtypima',   'assets/v_xtypima.mp3');
     this.load.audio('music_menu',  'assets/music_menu.mp3');
-    this.load.audio('music_game',  'assets/music_game.mp3');
+    this.load.audio('music_game',  'assets/music_game_v02.mp3');
   }
 
   create() {
